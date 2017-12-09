@@ -3,6 +3,7 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
+
 class BaseModel(db.Model):
     __abstract__ = True
 
@@ -20,7 +21,6 @@ class User(BaseModel):
     location = db.Column(db.String)
     lat = db.Column(db.Float)
     lng = db.Column(db.Float)
-
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -54,7 +54,6 @@ class ForeignContact(BaseModel):
         return '<ForeignContact %r>' % self.channel
 
 
-
 class ContactLog(BaseModel):
     request = db.Column(db.Integer, db.ForeignKey('requests.id'), nullable=False)
     user = db.Column(db.Integer, db.ForeignKey('users.id'))
@@ -62,4 +61,3 @@ class ContactLog(BaseModel):
 
     def __repr__(self):
         return '<ContactLog Request(%r)>' % self.request
-    
