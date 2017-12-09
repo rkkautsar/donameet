@@ -12,7 +12,8 @@ class BaseModel(db.Model):
 
 
 class User(BaseModel):
-    __table__ = 'users'
+    __tablename__ = 'users'
+
     email = db.Column(db.String, unique=True)
     password = db.Column(db.String, nullable=False)
     contact_phone = db.Column(db.String, nullable=False)
@@ -27,7 +28,7 @@ class User(BaseModel):
 
 
 class Request(BaseModel):
-    __table__ = 'requests'
+    __tablename__ = 'requests'
 
     blood_type = db.Column(db.String, nullable=False)
     rhesus = db.Column(db.String)
@@ -45,7 +46,7 @@ class Request(BaseModel):
 
 
 class ForeignContact(BaseModel):
-    __table__ = 'foreign_contacts'
+    __tablename__ = 'foreign_contacts'
 
     channel = db.Column(db.String, nullable=False, default='sms')
     contact = db.Column(db.String, nullable=False)
@@ -55,6 +56,8 @@ class ForeignContact(BaseModel):
 
 
 class ContactLog(BaseModel):
+    __tablename__ = 'contact_logs'
+
     request = db.Column(db.Integer, db.ForeignKey('requests.id'), nullable=False)
     user = db.Column(db.Integer, db.ForeignKey('users.id'))
     foreign_contact = db.Column(db.Integer, db.ForeignKey('foreign_contacts.id'))

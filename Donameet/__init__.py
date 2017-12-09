@@ -10,7 +10,8 @@ def create_app():
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-        db = SQLAlchemy()
+        from Donameet.models import db, User, Request, ForeignContact, ContactLog
+
         db.init_app(app)
         migrate = Migrate()
         migrate.init_app(app, db)
