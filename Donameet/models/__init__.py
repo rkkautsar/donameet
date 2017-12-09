@@ -14,7 +14,7 @@ class BaseModel(db.Model):
 class User(BaseModel):
     __tablename__ = 'users'
 
-    email = db.Column(db.String, unique=True)
+    email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
     contact_phone = db.Column(db.String, nullable=False)
     blood_type = db.Column(db.String)
@@ -50,6 +50,9 @@ class ForeignContact(BaseModel):
 
     channel = db.Column(db.String, nullable=False, default='sms')
     contact = db.Column(db.String, nullable=False)
+    location = db.Column(db.String)
+    lat = db.Column(db.Float)
+    lng = db.Column(db.Float)
 
     def __repr__(self):
         return '<ForeignContact %r>' % self.channel
