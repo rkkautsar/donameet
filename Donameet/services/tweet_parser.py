@@ -8,6 +8,7 @@ access_token = os.environ.get('WIT_ACCESS_TOKEN')
 client = Wit(access_token)
 geolocator = Nominatim()
 
+
 class TweetListener(tweepy.StreamListener):
 
     def get_first_entity_value(self, resp, entity):
@@ -27,33 +28,44 @@ class TweetListener(tweepy.StreamListener):
         else:
             return '[{} missing]'.format(entity)
 
-    def on_status(self, status):
-        print('[*] New Tweet: {}'.format(status.text))
+    def on_status(self, received):
 
-        print('[*] Requesting Wit...')
-        resp = client.get_message(status.text)
+        tweet = received._json
 
-        if self.get_first_entity_value(resp, 'intent') == 'patient':
+        if 'retweeted_status' not in tweet:
+            if tweet['truncated']:
+                status = tweet['extended_tweet']['full_text']
+            else:
+                status = tweet['text']
 
-            blood_type = self.get_first_entity_value(resp, 'blood_type')
-            rhesus = self.get_first_entity_value(resp, 'rhesus')
-            location = self.get_first_entity_value(resp, 'location')
-            phone_number = self.get_first_entity_value(resp, 'phone_number')
+            print('[*] New Tweet: {}'.format(status))
 
-            geocode = geolocator.geocode(location)
-            geocode_val = '[Unable to geocode]'
-            if geocode is not None:
-                geocode_val = '(Lat: {}, Long: {}, Addr: {})'.format(geocode.latitude, geocode.longitude, geocode.address)
+            print('[*] Requesting Wit...')
+            resp = client.get_message(status)
 
-            data = {
-                'value1': '{}{}, di {}, geocode {}'.format(blood_type, rhesus, location, geocode_val),
-                'value2': phone_number,
-                'value3': status.text,
-            }
+            if self.get_first_entity_value(resp, 'intent') == 'patient':
 
-            print('[*] Notifying Line...')
-            requests.post(
-                'https://maker.ifttt.com/trigger/donameet_test/with/key/cJRfaUDbCTM1eNchebpS33', data=data)
+                blood_type = self.get_first_entity_value(resp, 'blood_type')
+                rhesus = self.get_first_entity_value(resp, 'rhesus')
+                location = self.get_first_entity_value(resp, 'location')
+                phone_number = self.get_first_entity_value(
+                    resp, 'phone_number')
+
+                geocode = geolocator.geocode(location)
+                geocode_val = '[Unable to geocode]'
+                if geocode is not None:
+                    geocode_val = '(Lat: {}, Long: {}, Addr: {})'.format(
+                        geocode.latitude, geocode.longitude, geocode.address)
+
+                data = {
+                    'value1': '{}{}, di {}, geocode {}'.format(blood_type, rhesus, location, geocode_val),
+                    'value2': phone_number,
+                    'value3': status.text,
+                }
+
+                print('[*] Notifying Line...')
+                requests.post(
+                    'https://maker.ifttt.com/trigger/donameet_test/with/key/cJRfaUDbCTM1eNchebpS33', data=data)
 
 
 if __name__ == "__main__":
@@ -67,6 +79,7 @@ if __name__ == "__main__":
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
 
-    stream = tweepy.Stream(auth=api.auth, listener=TweetListener())
+    stream = tweepy.Stream(
+        auth=api.auth, listener=TweetListener(), tweet_mode='extended')
     stream.filter(track=['@Blood4LifeID', 'donor darah',
                          'butuh darah', 'perlu darah', 'dicari donor', 'cari darah'])
