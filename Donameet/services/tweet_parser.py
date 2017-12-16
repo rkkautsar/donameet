@@ -40,10 +40,13 @@ class TweetListener(tweepy.StreamListener):
             location = self.get_first_entity_value(resp, 'location')
             phone_number = self.get_first_entity_value(resp, 'phone_number')
 
-            location = geolocator.geocode(location)
+            geocode = geolocator.geocode(location)
+            geocode_val = '[Unable to geocode]'
+            if location is not None:
+                geocode_val = '(Lat: {}, Long: {}, Addr: {})'.format(geocode.latitude, geocode.longitude, geocode.address)
 
             data = {
-                'value1': '{}{}, di {}, geocode lat {}, lng {}'.format(blood_type, rhesus, location.latitude, location.longitude),
+                'value1': '{}{}, di {}, geocode {}'.format(blood_type, rhesus, location, geocode_val),
                 'value2': phone_number,
                 'value3': status.text,
             }
