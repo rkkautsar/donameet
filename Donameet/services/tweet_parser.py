@@ -42,7 +42,7 @@ class TweetListener(tweepy.StreamListener):
 
             geocode = geolocator.geocode(location)
             geocode_val = '[Unable to geocode]'
-            if location is not None:
+            if geocode is not None:
                 geocode_val = '(Lat: {}, Long: {}, Addr: {})'.format(geocode.latitude, geocode.longitude, geocode.address)
 
             data = {
