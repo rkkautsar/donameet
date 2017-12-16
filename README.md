@@ -16,6 +16,14 @@ pip install -r requirements.txt
 python serve.py
 ```
 
+## Run service
+```bash
+python Donameet/services/tweet_parser.py
+# or as daemon:
+pm2 start Donameet/services/tweet_parser.py
+```
+
+
 ## Technology :rocket:
 - Python 3
 - [Flask](http://flask.pocoo.org/)
