@@ -2,6 +2,7 @@ import os
 import tweepy
 import requests
 import json
+import re
 from geopy.geocoders import Nominatim
 from wit import Wit
 
@@ -90,8 +91,50 @@ class UserStreamListener(tweepy.StreamListener):
             self.on_mention(data)
 
     def on_direct_message(self, data):
+        #format DM: '{Nama}|{Umur}|{Goldar}{Rh}|{Lokasi}|{NomorHP}'
+        #           'Indra Pambudi|20|B+|Depok|083808844321'
         text = data['text']
         user = data['sender']['screen_name']
+        check = re.match(r'.+\|[0-9]+\|(A|B|AB|O)(\+|\-|)\|.+\|(+62|62|08)[1-9]+', text)
+        if check == None:
+            try:
+                api.send_direct_message(
+                    user, text='Hi! if you want to donate your blood please message me with this \
+                    format Name|Age|BloodType{Rhesus}|Location|PhoneNumber, ex: Indra Pambudi|20|B+|Depok|083808844321')
+            except tweepy.error.TweepError as e:
+                print("Error: {}".format(e.reason))
+            return
+
+        textArr = text.split('|')
+        name = textArr[0]
+        age = textArr[1]
+        bloodType = textArr[2]
+        rh = '+'
+        if bloodType[-1] in ['-','+']:
+            rh = bloodType[-1]
+            bloodType = bloodType[:-1]
+        loc = textArr[3]
+        phone = textArr[4]
+        twitName = data['sender']['name']
+
+        #insert to database here
+        geocode = geolocator.geocode(loc)
+        geocode_val = '[Unable to geocode]'
+        if geocode is not None:
+            geocode_val = '(Lat: {}, Long: {}, Addr: {})'.format(
+                geocode.latitude, geocode.longitude, geocode.address)
+        param = {
+            'username': user,
+            'contact_phone': phone,
+            'blood_type': bloodType,
+            'rhesus': rh,
+            'location': loc
+        }
+        geocode = geolocator.geocode(loc)
+        if geocode is not None:
+            param['lat'] = geocode.latitude
+            param['lng'] = geocode.longitude
+        response = requests.post('http://localhost:4000', data=param)
 
         try:
             api.send_direct_message(
