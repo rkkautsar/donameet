@@ -85,7 +85,21 @@ class VSM:
         if update_type == 'donor':
             self.add_donor(User.query.order_by(User.created_at.desc()).first())
         else: # update_type == 'patient'
-            patient = Request.query.order_by(Request.created_at.desc()).first()
+            patient_raw = Request.query.order_by(Request.created_at.desc()).first()
+            blood_type = {
+                'A': [1, 0, 0, 0],
+                'B': [0, 1, 0, 0],
+                'AB': [0, 0, 1, 0],
+                'O': [0, 0, 0, 1],
+                '+': [1, 0],
+                '-': [0, 1]
+            }
+
+            patient = [patient_raw.username]
+            patient.extend(blood_type[patient_raw.blood_type])
+            patient.extend(blood_type[patient_raw.rhesus])
+            patient.extend([patient_raw.lat, patient_raw.lng])
+
             result = self.find_donor(patient)
             result = filter(create_patient_mismatch_filter(patient), result)
             if not result:
