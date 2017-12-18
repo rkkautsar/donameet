@@ -14,8 +14,7 @@ class BaseModel(db.Model):
 class User(BaseModel):
     __tablename__ = 'users'
 
-    email = db.Column(db.String, unique=True, nullable=False)
-    password = db.Column(db.String, nullable=False)
+    username = db.Column(db.String, unique=True, nullable=False)
     contact_phone = db.Column(db.String, nullable=False)
     blood_type = db.Column(db.String)
     rhesus = db.Column(db.String)
@@ -30,11 +29,11 @@ class User(BaseModel):
 class Request(BaseModel):
     __tablename__ = 'requests'
 
+    username = db.Column(db.String, nullable=False)
+    contact_phone = db.Column(db.String)
     blood_type = db.Column(db.String, nullable=False)
     rhesus = db.Column(db.String)
     amount = db.Column(db.Integer)
-    contact = db.Column(db.String)
-    contact_phone = db.Column(db.String)
     location = db.Column(db.String)
     lat = db.Column(db.Float)
     lng = db.Column(db.Float)
