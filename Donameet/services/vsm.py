@@ -103,7 +103,7 @@ class VSM:
             result = self.find_donor(patient)
             result = filter(create_patient_mismatch_filter(patient), result)
             if not result:
-                db.session.delete(patient)
+                patient_raw.is_fulfilled = True
                 db.session.commit()
                 db.session.flush()
                 db.session.close()
