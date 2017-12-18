@@ -95,7 +95,7 @@ class UserStreamListener(tweepy.StreamListener):
         #           'Indra Pambudi|20|B+|Depok|083808844321'
         text = data['text']
         user = data['sender']['screen_name']
-        check = re.match(r'.+\|[0-9]+\|(A|B|AB|O)(\+|\-|)\|.+\|(+62|62|08)[1-9]+', text)
+        check = re.match(r'.+\|[0-9]+\|(A|B|AB|O)(\+|\-|)\|.+\|(+62|62|08)[0-9]+', text)
         if check == None:
             try:
                 api.send_direct_message(
@@ -118,11 +118,6 @@ class UserStreamListener(tweepy.StreamListener):
         twitName = data['sender']['name']
 
         #insert to database here
-        geocode = geolocator.geocode(loc)
-        geocode_val = '[Unable to geocode]'
-        if geocode is not None:
-            geocode_val = '(Lat: {}, Long: {}, Addr: {})'.format(
-                geocode.latitude, geocode.longitude, geocode.address)
         param = {
             'username': user,
             'contact_phone': phone,
@@ -134,7 +129,7 @@ class UserStreamListener(tweepy.StreamListener):
         if geocode is not None:
             param['lat'] = geocode.latitude
             param['lng'] = geocode.longitude
-        response = requests.post('http://localhost:4000', data=param)
+        response = requests.post('http://localhost:4000/add-donor', data=param)
 
         try:
             api.send_direct_message(
@@ -143,14 +138,14 @@ class UserStreamListener(tweepy.StreamListener):
             print("Error: {}".format(e.reason))
 
     #-----------------------------------------------------------------------
-    # Format Mention : 'Name|BloodType_Rhesus|Location|Contact|cc:@donameet_bot'
-    # 'Farida|O+|Depok|081234567890| @donameet_bot'
+    # Format Mention : 'Name|BloodType_Rhesus|Location|Contact|Amount|cc:@donameet_bot'
+    # 'Farida|O+|Depok|081234567890|4|@donameet_bot'
     #-----------------------------------------------------------------------
     def on_mention(self, data):
         tweet_ID = data['id']
         username = data['screen_name']
         tweet = data['text']
-        check = re.match('.+\|(A|B|AB|O)(\+|\-|)\|.+\|(\+62|62|08)[1-9]+|', tweet)
+        check = re.match('.+\|(A|B|AB|O)(\+|\-|)\|.+\|(\+62|62|08)[0-9]+\|[0-9]+\|', tweet)
         
         if check:
             result = tweet.split('|')
@@ -159,13 +154,28 @@ class UserStreamListener(tweepy.StreamListener):
             rhesus = result[1][1:]
             location = result[2]
             contact = result[3]
+            amount = result[4]
             # todo add to dbxxx
+            param = {
+                'username': username,
+                'contact_phone': contact,
+                'blood_type': blood_type,
+                'amount': amount,
+                'rhesus': rhesus,
+                'location': location,
+                'text': tweet
+            }
+            geocode = geolocator.geocode(location)
+            if geocode is not None:
+                param['lat'] = geocode.latitude
+                param['lng'] = geocode.longitude
+            response = requests.post('http://localhost:4000/add-request', data=param)
         else:
             try:
                 msg_reply = "Hello, kindly please follow the format below \nName|BloodType_Rhesus|Location|Contact|@donameet_bot :)"
                 api.update_status(msg_reply, tweet_ID)
             except tweepy.error.TweepError as e:
-                print("Error: {}".format(e.
+                print("Error: {}".format(e.reason))
     
 
     def on_error(self, status_code):
