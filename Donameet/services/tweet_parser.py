@@ -119,7 +119,7 @@ class UserStreamListener(tweepy.StreamListener):
 
         text = data['text']
         user = data['sender']['screen_name']
-        check = re.match(r'.+\|[0-9]+\|(A|B|AB|O)(\+|\-|)\|.+\|(\+62|62|08)[0-9]+', text)
+        check = re.match(r'^.+\|[0-9]+\|(A|B|AB|O)(\+|\-|)\|.+\|(\+62|62|08)[0-9]+$', text)
         if check == None:
             try:
                 api.send_direct_message(
@@ -181,7 +181,7 @@ class UserStreamListener(tweepy.StreamListener):
         tweet_ID = data['id']
         username = data['screen_name']
         tweet = data['text']
-        check = re.match(r'.+\|(A|B|AB|O)(\+|\-|)\|.+\|(\+62|62|08)[0-9]+\|[0-9]+\|', tweet)
+        check = re.match(r'^.+\|(A|B|AB|O)(\+|\-|)\|.+\|(\+62|62|08)[0-9]+\|[0-9]+\|[^\|]+$', tweet)
         
         if check:
             result = tweet.split('|')
