@@ -35,7 +35,7 @@ def add_request():
 
     with app.app_context():
         return jsonify({
-            'match': app.config['VSM'].__class__.update('request')
+            'match': app.config['VSM'].update('request')
         })
 
 
@@ -64,5 +64,5 @@ def add_donor():
 
     with app.app_context():
         return jsonify({
-            'match': app.config['VSM'].__class__.update('donor')
+            'match': app.config['VSM'].update('donor')
         })

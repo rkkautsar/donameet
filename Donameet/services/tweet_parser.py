@@ -20,6 +20,8 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth, wait_on_rate_limit=True, retry_count=2,
                  retry_delay=451)  # 15 min delay / 2 retry
 
+BOT_USERNAME = 'donameet_bot'
+
 
 class TweetListener(tweepy.StreamListener):
 
@@ -103,14 +105,18 @@ class UserStreamListener(tweepy.StreamListener):
     def on_data(self, data):
         data = json.loads(data)
 
-        if 'direct_message' in data:
+        if 'direct_message' in data and data['direct_message']['sender']['screen_name'] != BOT_USERNAME:
             self.on_direct_message(data['direct_message'])
-        elif 'in_reply_to_screen_name' in data and data['in_reply_to_screen_name'] == 'donameet_bot':
+        elif 'in_reply_to_screen_name' in data and data['in_reply_to_screen_name'] == BOT_USERNAME:
             self.on_mention(data)
 
     def on_direct_message(self, data):
         #format DM: '{Nama}|{Umur}|{Goldar}{Rh}|{Lokasi}|{NomorHP}'
         #           'Indra Pambudi|20|B+|Depok|083808844321'
+
+        print('[+] Got DM:')
+        print(data)
+
         text = data['text']
         user = data['sender']['screen_name']
         check = re.match(r'.+\|[0-9]+\|(A|B|AB|O)(\+|\-|)\|.+\|(\+62|62|08)[0-9]+', text)
