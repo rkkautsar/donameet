@@ -72,7 +72,7 @@ class VSM:
             donor_pos = (user[7], user[8])
             if (user[7] != 0 or user[8] != 0) and (patient[7] != 0 or patient[8] != 0):
                 dot += 10 / (1 + vincenty(patient_pos, donor_pos).kilometers**2)
-                donor_norm += 10 / (1 + vincenty(patient_pos, donor_pos).kilometers**2)
+                donor_norm += (10 / (1 + vincenty(patient_pos, donor_pos).kilometers**2)) ** 2
 
             donor_norm = donor_norm ** 0.5
             cosine_similarity = dot / (patient_norm * donor_norm)
