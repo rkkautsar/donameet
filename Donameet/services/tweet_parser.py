@@ -174,14 +174,14 @@ class UserStreamListener(tweepy.StreamListener):
             print("Error: {}".format(e.reason))
 
     #-----------------------------------------------------------------------
-    # Format Mention : 'Name|BloodType_Rhesus|Location|Contact|Amount|cc:@donameet_bot'
+    # Format Mention : '@donameet_bot Name|BloodType_Rhesus|Location|Contact|Amount'
     # 'Farida|O+|Depok|081234567890|4|@donameet_bot'
     #-----------------------------------------------------------------------
     def on_mention(self, data):
         tweet_ID = data['id']
         username = data['user']['screen_name']
         tweet = data['text']
-        check = re.match(r'^.+\|(A|B|AB|O)(\+|\-|)\|.+\|(\+62|62|08)[0-9]+\|[0-9]+\|[^\|]+$', tweet)
+        check = re.match(r'^.+\|(A|B|AB|O)(\+|\-|)\|.+\|(\+62|62|08)[0-9]+\|[0-9]+$', tweet)
         
         if check:
             result = tweet.split('|')
@@ -217,7 +217,7 @@ class UserStreamListener(tweepy.StreamListener):
             api.update_status("@{} {}".format(username, msg_reply), tweet_ID)
         else:
             try:
-                msg_reply = "Hello, kindly please follow the format below \nName|BloodType_Rhesus|Location|Contact|Amount|cc:@donameet_bot :)"
+                msg_reply = "Hello, kindly please follow the format below \n@donameet_bot Name|BloodType{Rhesus}|Location|Contact|Amount :)"
                 api.update_status("@{} {}".format(username, msg_reply), tweet_ID)
             except tweepy.error.TweepError as e:
                 print("Error: {}".format(e.reason))
