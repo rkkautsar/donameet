@@ -119,7 +119,7 @@ class UserStreamListener(tweepy.StreamListener):
 
         text = data['text']
         user = data['sender']['screen_name']
-        check = re.match(r'^.+\|[0-9]+\|(A|B|AB|O)(\+|\-|)\|.+\|(\+62|62|08)[0-9]+$', text)
+        check = re.match(r'^.+\|[0-9]+\|(AB|A|B|O)(\+|\-|)\|.+\|(\+62|62|08)[0-9]+$', text)
         if check == None:
             try:
                 api.send_direct_message(
@@ -181,13 +181,14 @@ class UserStreamListener(tweepy.StreamListener):
         tweet_ID = data['id']
         username = data['user']['screen_name']
         tweet = data['text']
-        check = re.match(r'^.+\|(A|B|AB|O)(\+|\-|)\|.+\|(\+62|62|08)[0-9]+\|[0-9]+$', tweet)
+        check = re.match(r'@donameet_bot .+\|(AB|A|B|O)(\+|\-|)\|.+\|(\+62|62|08)[0-9]+\|[0-9]+$', tweet)
         
         if check:
+            result = tweet.split('@donameet_bot ')[-1:]
             result = tweet.split('|')
             name = result[0]
-            blood_type = result[1][:1]
-            rhesus = result[1][1:]
+            blood_type = result[1][:-1]
+            rhesus = result[1][-1:]
             location = result[2]
             contact = result[3]
             amount = result[4]
