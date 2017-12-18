@@ -176,10 +176,10 @@ class UserStreamListener(tweepy.StreamListener):
         except tweepy.error.TweepError as e:
             print("Error: {}".format(e.reason))
 
-    #-----------------------------------------------------------------------
+    #-------------------------------------------------------------------------------
     # Format Mention : '@donameet_bot Name|BloodType_Rhesus|Location|Contact|Amount'
-    # 'Farida|O+|Depok|081234567890|4|@donameet_bot'
-    #-----------------------------------------------------------------------
+    # Example : '@donameet_bot Farida|O+|Depok|081234567890|4'
+    #-------------------------------------------------------------------------------
     def on_mention(self, data):
         tweet_ID = data['id']
         username = data['user']['screen_name']
@@ -195,7 +195,8 @@ class UserStreamListener(tweepy.StreamListener):
             location = result[2]
             contact = result[3]
             amount = result[4]
-            # todo add to dbxxx
+            
+            # insert to db
             param = {
                 'username': username,
                 'contact_phone': contact,
