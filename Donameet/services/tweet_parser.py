@@ -80,6 +80,10 @@ class TweetListener(tweepy.StreamListener):
                     if geocode is not None:
                         param['lat'] = geocode.latitude
                         param['lng'] = geocode.longitude
+                    else:
+                        param['lat'] = 0
+                        param['lng'] = 0
+
                     response = requests.post('http://localhost:4000/add-patient', data=param)
                     result = response.json()['match']
 
@@ -153,8 +157,9 @@ class UserStreamListener(tweepy.StreamListener):
         if geocode is not None:
             param['lat'] = geocode.latitude
             param['lng'] = geocode.longitude
-        
-        print(param)
+        else:
+            param['lat'] = 0
+            param['lng'] = 0
 
         response = requests.post('http://localhost:4000/add-donor', data=param)
         print(response.text)
@@ -206,6 +211,10 @@ class UserStreamListener(tweepy.StreamListener):
             if geocode is not None:
                 param['lat'] = geocode.latitude
                 param['lng'] = geocode.longitude
+            else:
+                param['lat'] = 0
+                param['lng'] = 0
+
             response = requests.post('http://localhost:4000/add-request', data=param)
             result = response.json()['match']
             if result:
