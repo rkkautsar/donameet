@@ -117,7 +117,7 @@ class VSM:
 def create_patient_mismatch_filter(patient):
         def mismatch_filter(entry):
             donor = User.query.filter_by(username = entry['username']).one()
-            if patient.rhesus == '-' and donor.rhesus:
+            if patient.rhesus == '-' and donor.rhesus == '+':
                 return False
             elif patient.blood_type != donor.blood_type:
                 blood_index = {
