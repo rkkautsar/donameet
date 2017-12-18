@@ -72,7 +72,8 @@ class VSM:
                 donor_norm = donor_norm ** 0.5
 
                 donor_pos = (user[7], user[8])
-                dot += 10 / (1 + vicenty(patient_pos, donor_pos))
+                if user[7] != 0 or user[8] != 0:
+                    dot += 10 / (1 + vincenty(patient_pos, donor_pos)**2)
 
                 cosine_similarity = dot / (patient_norm * donor_norm)
 
