@@ -99,8 +99,20 @@ class UserStreamListener(tweepy.StreamListener):
         except tweepy.error.TweepError as e:
             print("Error: {}".format(e.reason))
 
+    #-----------------------------------------------------------------------
+    # Format Mention : 'Name|BloodType_Rhesus|Location|Contact| @donameet_bot'
+    # 'Farida|O+|Depok|081234567890| @donameet_bot'
+    #-----------------------------------------------------------------------
     def on_mention(self, data):
-        pass
+        tweet = data['text']
+        result = tweet.split('|')
+        name = result[0]
+        blood_type = result[1][:1]
+        rhesus = result[1][1:]
+        location = result[2]
+        contact = result[3]
+        # todo add to db
+
 
     def on_error(self, status_code):
         if status_code == 420:
