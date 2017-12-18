@@ -101,7 +101,7 @@ class VSM:
             patient.extend([patient_raw.lat, patient_raw.lng])
 
             result = self.find_donor(patient)
-            result = filter(create_patient_mismatch_filter(patient), result)
+            result = list(filter(create_patient_mismatch_filter(patient), result))
             if not result:
                 db.session.delete(patient)
                 db.session.commit()
