@@ -100,19 +100,30 @@ class UserStreamListener(tweepy.StreamListener):
             print("Error: {}".format(e.reason))
 
     #-----------------------------------------------------------------------
-    # Format Mention : 'Name|BloodType_Rhesus|Location|Contact| @donameet_bot'
+    # Format Mention : 'Name|BloodType_Rhesus|Location|Contact|cc:@donameet_bot'
     # 'Farida|O+|Depok|081234567890| @donameet_bot'
     #-----------------------------------------------------------------------
     def on_mention(self, data):
+        tweet_ID = data['id']
+        username = data['screen_name']
         tweet = data['text']
-        result = tweet.split('|')
-        name = result[0]
-        blood_type = result[1][:1]
-        rhesus = result[1][1:]
-        location = result[2]
-        contact = result[3]
-        # todo add to db
-
+        check = re.match('.+\|(A|B|AB|O)(\+|\-|)\|.+\|(\+62|62|08)[1-9]+|', tweet)
+        
+        if check:
+            result = tweet.split('|')
+            name = result[0]
+            blood_type = result[1][:1]
+            rhesus = result[1][1:]
+            location = result[2]
+            contact = result[3]
+            # todo add to dbxxx
+        else:
+            try:
+                msg_reply = "Hello, kindly please follow the format below \nName|BloodType_Rhesus|Location|Contact|@donameet_bot :)"
+                api.update_status(msg_reply, tweet_ID)
+            except tweepy.error.TweepError as e:
+                print("Error: {}".format(e.
+    
 
     def on_error(self, status_code):
         if status_code == 420:
