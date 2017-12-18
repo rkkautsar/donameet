@@ -130,10 +130,17 @@ class UserStreamListener(tweepy.StreamListener):
             param['lat'] = geocode.latitude
             param['lng'] = geocode.longitude
         response = requests.post('http://localhost:4000/add-donor', data=param)
+        result = response.json()['match']
+
+        if result:
+            msg_reply = "You might want to contact these people:"
+            for entry in result:
+                msg_reply += " @{}".format(entry['username'])
+        else:
+            msg_reply = "OK! We will notice you if there is a good match!"
 
         try:
-            api.send_direct_message(
-                user, text='Hi! you just sent me: {}'.format(text))
+            api.send_direct_message(user, text=msg_reply)
         except tweepy.error.TweepError as e:
             print("Error: {}".format(e.reason))
 
@@ -170,6 +177,15 @@ class UserStreamListener(tweepy.StreamListener):
                 param['lat'] = geocode.latitude
                 param['lng'] = geocode.longitude
             response = requests.post('http://localhost:4000/add-request', data=param)
+            result = response.json()['match']
+            if result:
+                msg_reply = "You might want to contact these people:"
+                for entry in result:
+                    msg_reply += " @{}".format(entry['username'])
+            else:
+                msg_reply = "OK! We will notice you if there is a good match!"
+            
+            api.update_status(msg_reply, tweet_ID)
         else:
             try:
                 msg_reply = "Hello, kindly please follow the format below \nName|BloodType_Rhesus|Location|Contact|@donameet_bot :)"
