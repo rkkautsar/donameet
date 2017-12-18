@@ -1,9 +1,7 @@
-from flask import Blueprint, render_template, jsonify
-from Donameet.services.vsm import VSM
+from flask import Blueprint, render_template, jsonify, request, current_app as app
 from Donameet.models import db, User, Request
 
 api = Blueprint('api', __name__)
-
 
 @api.route('/')
 def home():
@@ -35,16 +33,17 @@ def add_request():
     db.session.flush()
     db.session.close()
 
-    return jsonify({
-        'match': VSM.update('request')
-    })
+    with app.app_context():
+        return jsonify({
+            'match': app.config['VSM'].__class__.update('request')
+        })
 
 
-@api.route('/add-donor')
+@api.route('/add-donor', methods=['POST'])
 def add_donor():
     username = request.form['username']
-    contact_phone = request.form['contact-phone']
-    blood_type = request.form['blood-type']
+    contact_phone = request.form['contact_phone']
+    blood_type = request.form['blood_type']
     rhesus = request.form['rhesus']
     location = request.form['location']
     lat = request.form['lat']
@@ -63,6 +62,7 @@ def add_donor():
     db.session.flush()
     db.session.close()
 
-    return jsonify({
-        'match': VSM.update('donor')
-    })
+    with app.app_context():
+        return jsonify({
+            'match': app.config['VSM'].__class__.update('donor')
+        })

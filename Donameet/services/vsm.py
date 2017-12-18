@@ -9,13 +9,13 @@ class VSM:
             self.users = []
             self.patients = []
 
-            users = User.query().all()
+            users = User.query.all()
             for user in users:
-                add_donor(user)
+                self.add_donor(user)
 
-            patients = Request.query().filter_by(is_fulfilled=False).all()
-            for patient in patient:
-                add_patient(patient)
+            patients = Request.query.filter_by(is_fulfilled=False).all()
+            for patient in patients:
+                self.add_patient(patient)
 
         def add_donor(self, donor):
             blood_type = {
@@ -92,7 +92,7 @@ class VSM:
     @staticmethod
     def create_patient_mismatch_filter(patient):
         def mismatch_filter(entry):
-            donor = User.query().filter_by(username = entry['username'])
+            donor = User.query.filter_by(username = entry['username'])
             if patient.rhesus == '-' and donor.rhesus:
                 return False
             elif patient.blood_type != donor.blood_type:
@@ -124,9 +124,9 @@ class VSM:
     @classmethod
     def update(cls, update_type):
         if update_type == 'donor':
-            instance.add_donor(User.query().order_by(User.created_at.desc()).first())
+            instance.add_donor(User.query.order_by(User.created_at.desc()).first())
         else: # update_type == 'patient'
-            patient = Request.query().order_by(Request.created_at.desc()).first()
+            patient = Request.query.order_by(Request.created_at.desc()).first()
             result = instance.find_donor(patient)
             result = filter(create_patient_mismatch_filter(patient), result)
             if not result:

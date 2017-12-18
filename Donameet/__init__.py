@@ -20,5 +20,6 @@ def create_app():
         migrate.init_app(app, db)
 
         app.register_blueprint(api)
+        app.config['VSM'] = VSM()
 
     return app

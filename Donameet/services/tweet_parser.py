@@ -59,6 +59,7 @@ class TweetListener(tweepy.StreamListener):
 
                 username = tweet['screen_name']
                 blood_type = self.get_first_entity_value(resp, 'blood_type')
+                amount = self.get_first_entity_value(resp, 'blood_amount')
                 rhesus = self.get_first_entity_value(resp, 'rhesus')
                 location = self.get_first_entity_value(resp, 'location')
                 contact_phone = self.get_first_entity_value(resp, 'phone_number')
@@ -68,6 +69,7 @@ class TweetListener(tweepy.StreamListener):
                     param = {
                         'username': username,
                         'contact_phone': contact_phone,
+                        'amount': amount,
                         'blood_type': blood_type,
                         'rhesus': rhesus,
                         'location': location
@@ -76,7 +78,7 @@ class TweetListener(tweepy.StreamListener):
                     if geocode is not None:
                         param['lat'] = geocode.latitude
                         param['lng'] = geocode.longitude
-                    response = requests.post('http://localhost:4000/add-donor', data=param)
+                    response = requests.post('http://localhost:4000/add-patient', data=param)
                     result = response.json()['match']
 
                     if result:
@@ -111,7 +113,7 @@ class UserStreamListener(tweepy.StreamListener):
         #           'Indra Pambudi|20|B+|Depok|083808844321'
         text = data['text']
         user = data['sender']['screen_name']
-        check = re.match(r'.+\|[0-9]+\|(A|B|AB|O)(\+|\-|)\|.+\|(+62|62|08)[0-9]+', text)
+        check = re.match(r'.+\|[0-9]+\|(A|B|AB|O)(\+|\-|)\|.+\|(\+62|62|08)[0-9]+', text)
         if check == None:
             try:
                 api.send_direct_message(
@@ -145,7 +147,12 @@ class UserStreamListener(tweepy.StreamListener):
         if geocode is not None:
             param['lat'] = geocode.latitude
             param['lng'] = geocode.longitude
+        
+        print(param)
+
         response = requests.post('http://localhost:4000/add-donor', data=param)
+        print(response.text)
+        print(response.json())
         result = response.json()['match']
 
         if result:
@@ -168,7 +175,7 @@ class UserStreamListener(tweepy.StreamListener):
         tweet_ID = data['id']
         username = data['screen_name']
         tweet = data['text']
-        check = re.match('.+\|(A|B|AB|O)(\+|\-|)\|.+\|(\+62|62|08)[0-9]+\|[0-9]+\|', tweet)
+        check = re.match(r'.+\|(A|B|AB|O)(\+|\-|)\|.+\|(\+62|62|08)[0-9]+\|[0-9]+\|', tweet)
         
         if check:
             result = tweet.split('|')
