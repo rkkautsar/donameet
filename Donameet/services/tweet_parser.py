@@ -59,7 +59,7 @@ class TweetListener(tweepy.StreamListener):
 
             if self.get_first_entity_value(resp, 'intent') == 'patient':
 
-                username = tweet['screen_name']
+                username = tweet['user']['screen_name']
                 blood_type = self.get_first_entity_value(resp, 'blood_type')
                 amount = self.get_first_entity_value(resp, 'blood_amount')
                 rhesus = self.get_first_entity_value(resp, 'rhesus')
@@ -87,7 +87,7 @@ class TweetListener(tweepy.StreamListener):
                         msg_reply = "You might want to contact these people:"
                         for entry in result:
                             msg_reply += " @{}".format(entry['username'])
-                        api.update_status(msg_reply, tweet['id'])
+                        api.update_status("@{} {}".format(username, msg_reply), tweet['id'])
 
                 data = {
                     'value1': '{}{}'.format(blood_type, rhesus),
@@ -179,7 +179,7 @@ class UserStreamListener(tweepy.StreamListener):
     #-----------------------------------------------------------------------
     def on_mention(self, data):
         tweet_ID = data['id']
-        username = data['screen_name']
+        username = data['user']['screen_name']
         tweet = data['text']
         check = re.match(r'^.+\|(A|B|AB|O)(\+|\-|)\|.+\|(\+62|62|08)[0-9]+\|[0-9]+\|[^\|]+$', tweet)
         
@@ -214,11 +214,11 @@ class UserStreamListener(tweepy.StreamListener):
             else:
                 msg_reply = "OK! We will notice you if there is a good match!"
             
-            api.update_status(msg_reply, tweet_ID)
+            api.update_status("@{} {}".format(username, msg_reply), tweet_ID)
         else:
             try:
-                msg_reply = "Hello, kindly please follow the format below \nName|BloodType_Rhesus|Location|Contact|@donameet_bot :)"
-                api.update_status(msg_reply, tweet_ID)
+                msg_reply = "Hello, kindly please follow the format below \nName|BloodType_Rhesus|Location|Contact|Amount|cc:@donameet_bot :)"
+                api.update_status("@{} {}".format(username, msg_reply), tweet_ID)
             except tweepy.error.TweepError as e:
                 print("Error: {}".format(e.reason))
     
