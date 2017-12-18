@@ -57,21 +57,37 @@ class TweetListener(tweepy.StreamListener):
 
             if self.get_first_entity_value(resp, 'intent') == 'patient':
 
+                username = tweet['screen_name']
                 blood_type = self.get_first_entity_value(resp, 'blood_type')
                 rhesus = self.get_first_entity_value(resp, 'rhesus')
                 location = self.get_first_entity_value(resp, 'location')
-                phone_number = self.get_first_entity_value(
-                    resp, 'phone_number')
+                contact_phone = self.get_first_entity_value(resp, 'phone_number')
 
-                geocode = geolocator.geocode(location)
-                geocode_val = '[Unable to geocode]'
-                if geocode is not None:
-                    geocode_val = '(Lat: {}, Long: {}, Addr: {})'.format(
-                        geocode.latitude, geocode.longitude, geocode.address)
+                if not ('missing' in blood_type or 'missing' in rhesus or 'missing' in location or 'missing' in contact_phone):
+                    
+                    param = {
+                        'username': username,
+                        'contact_phone': contact_phone,
+                        'blood_type': blood_type,
+                        'rhesus': rhesus,
+                        'location': location
+                    }
+                    geocode = geolocator.geocode(location)
+                    if geocode is not None:
+                        param['lat'] = geocode.latitude
+                        param['lng'] = geocode.longitude
+                    response = requests.post('http://localhost:4000/add-donor', data=param)
+                    result = response.json()['match']
+
+                    if result:
+                        msg_reply = "You might want to contact these people:"
+                        for entry in result:
+                            msg_reply += " @{}".format(entry['username'])
+                        api.update_status(msg_reply, tweet['id'])
 
                 data = {
-                    'value1': '{}{}, di {}, geocode {}'.format(blood_type, rhesus, location, geocode_val),
-                    'value2': phone_number,
+                    'value1': '{}{}'.format(blood_type, rhesus),
+                    'value2': contact_phone,
                     'value3': status,
                 }
 
@@ -204,11 +220,12 @@ class UserStreamListener(tweepy.StreamListener):
 
 if __name__ == "__main__":
 
-    # stream = tweepy.Stream(
-    #     auth=api.auth, listener=TweetListener(), tweet_mode='extended')
+    stream_tweet = tweepy.Stream(
+        auth=api.auth, listener=TweetListener(), tweet_mode='extended')
     # stream.filter(track=['@Blood4LifeID', 'donor darah',
-    #                      'butuh darah', 'perlu darah', 'dicari donor', 'cari darah'])
+    #                      'butuh darah', 'perlu darah', 'dicari donor', 'cari darah'], async=True)
+    stream_tweet.filter(track=['#donameet_test'], async=True)
 
-    stream = tweepy.Stream(
+    stream_user = tweepy.Stream(
         auth=api.auth, listener=UserStreamListener(), tweet_mode='extended')
-    stream.userstream()
+    stream_user.userstream()
