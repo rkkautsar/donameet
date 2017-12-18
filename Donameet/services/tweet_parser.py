@@ -84,7 +84,7 @@ class TweetListener(tweepy.StreamListener):
                         param['lat'] = 0
                         param['lng'] = 0
 
-                    response = requests.post('http://localhost:4000/add-patient', data=param)
+                    response = requests.post('http://localhost:4000/add-request', data=param)
                     result = response.json()['match']
 
                     if result:
@@ -162,8 +162,6 @@ class UserStreamListener(tweepy.StreamListener):
             param['lng'] = 0
 
         response = requests.post('http://localhost:4000/add-donor', data=param)
-        print(response.text)
-        print(response.json())
         result = response.json()['match']
 
         if result:

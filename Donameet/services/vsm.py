@@ -73,13 +73,13 @@ class VSM:
 
             donor_pos = (user[7], user[8])
             if (user[7] != 0 or user[8] != 0) and (patient[7] != 0 or patient[8] != 0):
-                dot += 10 / (1 + vincenty(patient_pos, donor_pos)**2)
+                dot += 10 / (1 + vincenty(patient_pos, donor_pos).kilometers**2)
 
             cosine_similarity = dot / (patient_norm * donor_norm)
 
-            vectors.append({'username': user.username, 'similarity': cosine_similarity})
+            vectors.append({'username': user[0], 'similarity': cosine_similarity})
 
-        return sorted(vectors, key=lambda k: k['similarity'], reverse=True)[5:]
+        return sorted(vectors, key=lambda k: k['similarity'], reverse=True)[:5]
 
     def update(self, update_type):
         if update_type == 'donor':
@@ -101,7 +101,7 @@ class VSM:
             patient.extend([patient_raw.lat, patient_raw.lng])
 
             result = self.find_donor(patient)
-            result = list(filter(create_patient_mismatch_filter(patient), result))
+            result = list(filter(create_patient_mismatch_filter(patient_raw), result))
             if len(result) > 0:
                 patient_raw.is_fulfilled = True
                 db.session.commit()
@@ -116,7 +116,7 @@ class VSM:
 
 def create_patient_mismatch_filter(patient):
         def mismatch_filter(entry):
-            donor = User.query.filter_by(username = entry['username'])
+            donor = User.query.filter_by(username = entry['username']).one()
             if patient.rhesus == '-' and donor.rhesus:
                 return False
             elif patient.blood_type != donor.blood_type:
