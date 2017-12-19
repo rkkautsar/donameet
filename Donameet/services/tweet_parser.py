@@ -38,7 +38,10 @@ class TweetListener(tweepy.StreamListener):
                     filter(lambda e: len(e['value']) > 3, entities))
 
             entities.sort(key=lambda x: -x['confidence'])
-            return entities[0]['value']
+            try:
+                return entities[0]['value']
+            except Exception as e:
+                return '[{} missing]'.format(entity)
         else:
             return '[{} missing]'.format(entity)
 
@@ -84,14 +87,17 @@ class TweetListener(tweepy.StreamListener):
                         param['lat'] = 0
                         param['lng'] = 0
 
-                    response = requests.post('http://localhost:4000/add-request', data=param)
-                    result = response.json()['match']
+                    try:
+                        response = requests.post('http://localhost:4000/add-request', data=param)
+                        result = response.json()['match']
 
-                    if result:
-                        msg_reply = "You might want to contact these people:"
-                        for entry in result:
-                            msg_reply += " @{}".format(entry['username'])
-                        api.update_status("@{} {}".format(username, msg_reply), tweet['id'])
+                        if result:
+                            msg_reply = "You might want to contact these people:"
+                            for entry in result:
+                                msg_reply += " @{}".format(entry['username'])
+                            api.update_status("@{} {}".format(username, msg_reply), tweet['id'])
+                    except Exception as e:
+                        print('Error on add-request')
 
                 data = {
                     'value1': '{}{}'.format(blood_type, rhesus),
